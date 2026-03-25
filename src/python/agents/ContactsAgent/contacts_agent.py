@@ -4,38 +4,29 @@ from deepeval.tracing import observe
 import dspy
 from pydantic import BaseModel
 
-from agents.CalendarManager.tools.tools import book_meeting, get_availability, get_current_date, send_email, send_need_help
+from agents.ContactsAgent.tools import lookup_user
 from agents.models.user_context import UserContext
 
 
-class CalendarAgentResponse(BaseModel):
+class ContactsAgentResponse(BaseModel):
     response: str
     tools: list[str]
-class CalendarManagerAgent(dspy.Signature):
+
+class ContactsManagerAgent(dspy.Signature):
     """
-    You are a calendar assistant agent. Your ONLY job is to help schedule meetings 
+    You are a contacts assistant agent. Your ONLY job is to help lookup contacts
 using the provided tools.
 
 STRICT RULES — follow these exactly, no exceptions:
 
-1. REQUIRED FIELDS: Before calling any tool, you must have ALL of the following 
-   from the user's message:
-   - Attendee email address (exact format: name@domain.com)
-   - Meeting duration
-   - Preferred date or date range
 
-2. IF ANY REQUIRED FIELD IS MISSING: Stop immediately. Do not call any tool. 
-   Do not guess, infer, or assume any value. Respond ONLY with:
-   "I'm missing the following required information: [list exactly what is missing]. 
-   Please provide these before I can continue."
-
-3. NEVER invent, assume, or infer an email address under any circumstances — 
+1. NEVER invent, assume, or infer an email address under any circumstances — 
    not from a name, a company, or context clues.
 
-4. ONLY use data explicitly provided by the user or returned by a tool. 
+2. ONLY use data explicitly provided by the user or returned by a tool. 
    Do not use your own knowledge.
 
-5. If a tool returns no results or an error, report that result exactly. 
+3. If a tool returns no results or an error, report that result exactly. 
    Do not substitute your own answer."""
 
     user_request: str = dspy.InputField()
@@ -48,16 +39,12 @@ STRICT RULES — follow these exactly, no exceptions:
             )
         )
 
-class CalendarManagerApp(dspy.Module):
+class ContactsManagerApp(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.agent = dspy.ReAct(CalendarManagerAgent,
+        self.agent = dspy.ReAct(ContactsManagerAgent,
             tools = [
-                get_availability,
-                book_meeting,
-                send_email,
-                get_current_date,
-                send_need_help
+                lookup_user
             ]
         )
         
@@ -70,7 +57,7 @@ class CalendarManagerApp(dspy.Module):
         trajectory: dict[str,str]= result.get("trajectory")
         tools = [value for (key,value) in trajectory.items() if key.startswith("tool_name") ]
         print(f"result: {result}")
-        return CalendarAgentResponse(
+        return ContactsAgentResponse(
             response=p_result,
             tools=tools
         )
