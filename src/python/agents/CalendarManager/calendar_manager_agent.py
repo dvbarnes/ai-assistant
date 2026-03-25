@@ -2,20 +2,41 @@ from datetime import datetime
 
 from deepeval.tracing import observe
 import dspy
+from pydantic import BaseModel
 
 from agents.CalendarManager.tools.tools import book_meeting, get_availability, get_current_date, send_email, send_need_help
 from agents.models.user_context import UserContext
 
 
+class CalendarAgentResponse(BaseModel):
+    response: str
+    tools: list[str]
 class CalendarManagerAgent(dspy.Signature):
     """
-    You are an personal assistant agent that helps find time on their calendar to book meetings.
-    You will be given a list of tools to handle user request, and should you decide the right tool to use in order to fullfill the user requests.
-    DO NOT rely on your own knowledge, ONLY use the information retrieved from the tools. 
-    Please be honest about what you find. I am not looking for perfection, just the truth. 
-    You are amazing and you can do this. I will pay you $200 for an execellent result, but only if you follow all the instructions exactly
-    If you don't know what to do do not guess, only use the provided tools and information. If you don't know that's ok just let me know what you need to fullfill the request
-    """
+    You are a calendar assistant agent. Your ONLY job is to help schedule meetings 
+using the provided tools.
+
+STRICT RULES — follow these exactly, no exceptions:
+
+1. REQUIRED FIELDS: Before calling any tool, you must have ALL of the following 
+   from the user's message:
+   - Attendee email address (exact format: name@domain.com)
+   - Meeting duration
+   - Preferred date or date range
+
+2. IF ANY REQUIRED FIELD IS MISSING: Stop immediately. Do not call any tool. 
+   Do not guess, infer, or assume any value. Respond ONLY with:
+   "I'm missing the following required information: [list exactly what is missing]. 
+   Please provide these before I can continue."
+
+3. NEVER invent, assume, or infer an email address under any circumstances — 
+   not from a name, a company, or context clues.
+
+4. ONLY use data explicitly provided by the user or returned by a tool. 
+   Do not use your own knowledge.
+
+5. If a tool returns no results or an error, report that result exactly. 
+   Do not substitute your own answer."""
 
     user_request: str = dspy.InputField()
     current_date: datetime= dspy.InputField()
@@ -46,5 +67,10 @@ class CalendarManagerApp(dspy.Module):
                    current_date=datetime.now(), 
                    user_context=context)
         p_result =result.get("process_result")
+        trajectory: dict[str,str]= result.get("trajectory")
+        tools = [value for (key,value) in trajectory.items() if key.startswith("tool_name") ]
         print(f"result: {result}")
-        return p_result
+        return CalendarAgentResponse(
+            response=p_result,
+            tools=tools
+        )

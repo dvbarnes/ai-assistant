@@ -33,30 +33,33 @@ dspy.configure(
     )
 )
 
-test_case = LLMTestCase(
-    input=app(message="book a meeting with jim",
+r1 = app(message="book a meeting with jim",
             context=UserContext(
             first_name=os.getenv("USER_FIRST_NAME"),
             last_name=os.getenv("USER_LAST_NAME"),
             email=os.getenv("USER_EMAIL")
-        )),
-    actual_output="I found available time slots in your schedule, but I couldn't proceed with booking the meeting because I do not have Jim's contact information. Please provide Jim's email or another way to reach him, so I can finalize the arrangement.",
+        ))
+
+test_case = LLMTestCase(
+    input=r1.response,
+    actual_output="I'm missing the following required information: Jim's email address, the meeting duration, and the preferred date or date range. Please provide these before I can continue.",
     # Replace this with the tools that was actually used by your LLM agent
-    tools_called=[],
-    expected_tools=[ToolCall(name="get_availability"), ToolCall(name="get_help")],
+    tools_called=[ToolCall(name= tool) for tool in r1.tools],
+    expected_tools=[ToolCall(name= 'finish')],
 )
 
-
-test_case_2 = LLMTestCase(
-    input=app(message="john asked me to find some time this week to meet, please email him 3 times that I'm free his email is john@john.com",
+r2 = app(message="john asked me to find some time this week to meet, please email him 3 times that I'm free his email is john@john.com",
             context=UserContext(
             first_name=os.getenv("USER_FIRST_NAME"),
             last_name=os.getenv("USER_LAST_NAME"),
             email=os.getenv("USER_EMAIL")
-        )),
+        ))
+
+test_case_2 = LLMTestCase(
+    input=r2.response,
     actual_output="I have emailed John to check his availability for the proposed time slots Once John responds, I can help finalize the meeting.",
     # Replace this with the tools that was actually used by your LLM agent
-    tools_called=[],
+    tools_called=[ToolCall(name= tool) for tool in r2.tools],
     expected_tools=[ToolCall(name="get_availability"),ToolCall(name="send_email")],
     
 )
