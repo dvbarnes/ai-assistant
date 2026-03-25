@@ -39,7 +39,7 @@ test_case = LLMTestCase(
             last_name=os.getenv("USER_LAST_NAME"),
             email=os.getenv("USER_EMAIL")
         )),
-    actual_output="I'm not able to complete this request because I don't have the correct information",
+    actual_output="I found available time slots in your schedule, but I couldn't proceed with booking the meeting because I do not have Jim's contact information. Please provide Jim's email or another way to reach him, so I can finalize the arrangement.",
     # Replace this with the tools that was actually used by your LLM agent
     tools_called=[ToolCall(name="get_availability"), ToolCall(name="get_help")],
     expected_tools=[ToolCall(name="get_availability"), ToolCall(name="get_help")],
