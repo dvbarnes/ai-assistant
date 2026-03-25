@@ -8,7 +8,8 @@ from agents.models.user_context import UserContext
 
 
 class CalendarManagerAgent(dspy.Signature):
-    """You are an personal assistant agent that helps find time on their calendar to book meetings.
+    """
+    You are an personal assistant agent that helps find time on their calendar to book meetings.
     You will be given a list of tools to handle user request, and should you decide the right tool to use in order to fullfill the user requests.
     If you don't know what to do do not guess, only use the provided tools and information.
     """
@@ -41,4 +42,6 @@ class CalendarManagerApp(dspy.Module):
         result = self.agent(user_request= message, 
                    current_date=datetime.now(), 
                    user_context=context)
-        return result.get("process_result")
+        p_result =result.get("process_result")
+        print(f"result: {p_result}")
+        return p_result
