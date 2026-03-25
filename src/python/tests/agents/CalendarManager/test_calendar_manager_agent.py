@@ -28,7 +28,8 @@ dspy.configure(
     lm=dspy.LM(
         os.getenv("MODEL_NAME"), 
         api_key=os.getenv("OPEN_API_KEY"), 
-        api_base=os.getenv("OPEN_API_URL")
+        api_base=os.getenv("OPEN_API_URL"),
+        temperature=0
     )
 )
 
@@ -41,7 +42,7 @@ test_case = LLMTestCase(
         )),
     actual_output="I found available time slots in your schedule, but I couldn't proceed with booking the meeting because I do not have Jim's contact information. Please provide Jim's email or another way to reach him, so I can finalize the arrangement.",
     # Replace this with the tools that was actually used by your LLM agent
-    tools_called=[ToolCall(name="get_availability"), ToolCall(name="get_help")],
+    tools_called=[],
     expected_tools=[ToolCall(name="get_availability"), ToolCall(name="get_help")],
 )
 
@@ -54,8 +55,10 @@ test_case_2 = LLMTestCase(
             email=os.getenv("USER_EMAIL")
         )),
     actual_output="I have emailed John to check his availability for the proposed time slots Once John responds, I can help finalize the meeting.",
-    tools_called=[ToolCall(name="get_availability"), ToolCall(name="send_email")],
+    # Replace this with the tools that was actually used by your LLM agent
+    tools_called=[],
     expected_tools=[ToolCall(name="get_availability"),ToolCall(name="send_email")],
+    
 )
 
 metric = ToolCorrectnessMetric(model=model)
