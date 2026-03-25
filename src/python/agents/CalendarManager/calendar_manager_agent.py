@@ -62,7 +62,7 @@ class CalendarManagerApp(dspy.Module):
         )
         
     @observe()
-    def forward(self, message: str, context: UserContext):
+    def forward(self, message: str, context: UserContext)->str:
         result = self.agent(user_request= message, 
                    current_date=datetime.now(), 
                    user_context=context)

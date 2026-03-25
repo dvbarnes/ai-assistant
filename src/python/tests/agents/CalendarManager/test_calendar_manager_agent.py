@@ -8,7 +8,7 @@ from deepeval.test_case import LLMTestCase, ToolCall
 from deepeval.metrics import AnswerRelevancyMetric, ToolCorrectnessMetric
 import dspy
 
-from agents.CalendarManager.calendar_manager_agent import CalendarManagerApp
+from agents.CalendarManager.calendar_manager_agent import CalendarAgentResponse, CalendarManagerApp
 from agents.models.user_context import UserContext
 
 from dotenv import load_dotenv
@@ -33,12 +33,16 @@ dspy.configure(
     )
 )
 
-r1 = app(message="book a meeting with jim",
-            context=UserContext(
+user_context = UserContext(
             first_name=os.getenv("USER_FIRST_NAME"),
             last_name=os.getenv("USER_LAST_NAME"),
             email=os.getenv("USER_EMAIL")
-        ))
+        )
+
+r1:CalendarAgentResponse = app(
+    message="book a meeting with jim",
+    context=user_context
+)
 
 test_case = LLMTestCase(
     input=r1.response,
@@ -48,12 +52,10 @@ test_case = LLMTestCase(
     expected_tools=[ToolCall(name= 'finish')],
 )
 
-r2 = app(message="john asked me to find some time this week to meet, please email him 3 times that I'm free his email is john@john.com",
-            context=UserContext(
-            first_name=os.getenv("USER_FIRST_NAME"),
-            last_name=os.getenv("USER_LAST_NAME"),
-            email=os.getenv("USER_EMAIL")
-        ))
+r2:CalendarAgentResponse = app(
+    message="john asked me to find some time this week to meet, please email him 3 times that I'm free his email is john@john.com",
+    context=user_context
+    )
 
 test_case_2 = LLMTestCase(
     input=r2.response,
