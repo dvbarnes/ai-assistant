@@ -46,5 +46,5 @@ class CalendarManagerApp(dspy.Module):
                    current_date=datetime.now(), 
                    user_context=context)
         p_result =result.get("process_result")
-        print(f"result: {p_result}")
+        print(f"result: {result}")
         return p_result
