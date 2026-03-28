@@ -4,7 +4,7 @@ from datetime import datetime
 from locale import format_string
 import os
 
-from deepeval import evaluate
+from deepeval import assert_test
 from deepeval.models import AzureOpenAIModel
 from deepeval.test_case import LLMTestCase, ToolCall
 from deepeval.metrics import AnswerRelevancyMetric, ToolCorrectnessMetric
@@ -44,6 +44,10 @@ user_context = UserContext(
             email=os.getenv("USER_EMAIL")
         )
 
+
+metric = ToolCorrectnessMetric(model=model)
+answer_relevancy = AnswerRelevancyMetric(model=model, threshold=0.6)
+
 date_format_string = "%Y-%m-%d %H:%M:%S"
 
 def test_missing_required_information_returns_correct_message():
@@ -57,11 +61,14 @@ def test_missing_required_information_returns_correct_message():
     test_case = LLMTestCase(
         input=r1.response,
         actual_output="I'm missing the following required information: attendee email address, meeting duration, and preferred date or date range. Please provide these before I can continue.",
+        #actual_output="herer you go!!",
         # Replace this with the tools that was actually used by your LLM agent
         tools_called=[ToolCall(name= tool) for tool in r1.tools],
         expected_tools=[ToolCall(name= 'finish')],
     )
-    return test_case
+
+    # ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
 
 def test_has_all_correct_info_sends_email():
     
@@ -103,11 +110,6 @@ def test_has_all_correct_info_sends_email():
         tools_called=[ToolCall(name= tool) for tool in r2.tools],
         expected_tools=[ToolCall(name=get_availability.__name__),ToolCall(name=send_email.__name__)],
     )
-    return test_case
+    # ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
 
-metric = ToolCorrectnessMetric(model=model)
-answer_relevancy = AnswerRelevancyMetric(model=model, threshold=0.6)
-evaluate(test_cases=[
-    test_missing_required_information_returns_correct_message(),
-    test_has_all_correct_info_sends_email()
-    ], metrics=[metric, answer_relevancy])

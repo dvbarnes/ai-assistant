@@ -18,7 +18,7 @@ dspy.configure(
 def main():
     agent = AIAssistantApp()
     result = agent(
-        message="John asked me to find some time this week to meet, please email him 3 times that I'm free"
+        message="John asked me to find some time this week to meet, please email him 3 times that I'm free."
         #,context= get_user_information()
           )
     print(result)

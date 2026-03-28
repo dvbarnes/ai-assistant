@@ -1,10 +1,9 @@
 
 
 import os
-from typing import Optional
-from unittest.mock import MagicMock
+import sys
 
-from deepeval import evaluate
+from deepeval import assert_test
 from deepeval.models import AzureOpenAIModel
 from deepeval.test_case import LLMTestCase, ToolCall
 from deepeval.metrics import AnswerRelevancyMetric, ToolCorrectnessMetric
@@ -44,6 +43,9 @@ user_context = UserContext(
             email=os.getenv("USER_EMAIL")
         )
 
+metric = ToolCorrectnessMetric(model=model)
+answer_relevancy = AnswerRelevancyMetric(model=model, threshold=0.6)
+
 
 def test_happy_path_returns_correct_user():
     lookup_tool = MockTool(func=lookup_user, ret_value=[Contact(
@@ -65,7 +67,9 @@ def test_happy_path_returns_correct_user():
         tools_called=[ToolCall(name= tool) for tool in r1.tools],
         expected_tools=[ToolCall(name= 'lookup_user')],
     )
-    return test_case
+
+    # ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
 
 def test_user_not_found_returns_correct_message():
     lookup_tool = MockTool(func=lookup_user, ret_value=[])
@@ -83,7 +87,10 @@ def test_user_not_found_returns_correct_message():
         expected_tools=[ToolCall(name="finish")],
         
     )
-    return test_case
+    
+    # ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
+
 
 def test_user_in_mulitple_companies_infers_correct_user():
     lookup_tool = MockTool(func=lookup_user, ret_value=[
@@ -113,9 +120,11 @@ def test_user_in_mulitple_companies_infers_correct_user():
         # Replace this with the tools that was actually used by your LLM agent
         tools_called=[ToolCall(name= tool) for tool in r3.tools],
         expected_tools=[ToolCall(name="lookup_user"), ToolCall(name="finish")],
-        
     )
-    return test_case
+    
+    #ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
+
 
 def test_user_in_same_company_cannot_continue():
     lookup_tool = MockTool(func=lookup_user, ret_value=[
@@ -152,13 +161,6 @@ Please confirm which contact is correct, or provide additional details to narrow
         expected_tools=[ToolCall(name="lookup_user"), ToolCall(name="finish")],
         
     )
-    return test_case
+    # ASSERT
+    assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
 
-metric = ToolCorrectnessMetric(model=model)
-answer_relevancy = AnswerRelevancyMetric(model=model, threshold=0.6)
-evaluate(test_cases=[
-    test_happy_path_returns_correct_user(),
-    test_user_not_found_returns_correct_message(), 
-    test_user_in_mulitple_companies_infers_correct_user(),
-    test_user_in_same_company_cannot_continue()
-    ], metrics=[metric, answer_relevancy])
