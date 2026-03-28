@@ -51,8 +51,6 @@ STRICT RULES — follow these exactly, no exceptions:
 class CalendarManagerApp(dspy.Module):
     tools = [
                 get_availability,
-                book_meeting,
-                send_email,
                 get_current_date,
                 send_need_help
             ]
