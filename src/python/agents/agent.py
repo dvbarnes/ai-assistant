@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from agents.CalendarManager.calendar_manager_agent import CalendarManagerApp
 from agents.ContactsAgent.contacts_agent import ContactsManagerApp
+from agents.agent_tools import get_user_information
 from agents.models.user_context import UserContext
 
 
@@ -88,6 +89,14 @@ class AIAssistantApp(dspy.Module):
     @observe()
     def forward(self, message: str):
         router_result = self.router(user_request = message)
+        result = ""
+        for r in router_result.get("needs"):
+            if(r == "CONTACT_READER"):
+                result += self.contacts(message=message + result, context = get_user_information()).response
+            if(r == "CALENDAR_READER"):
+                result += self.calendar(message= message + result,  context = get_user_information()).response
+        print(result)
+
 
         return router_result
 

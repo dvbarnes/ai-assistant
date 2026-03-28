@@ -18,8 +18,7 @@ class Contact(BaseModel):
 #         self._parse_function(func=self.lookup_user, arg_desc=None)
 
 def lookup_user(first_name: Optional[str], last_name: Optional[str], email: Optional[str], company: Optional[str])->list[Contact]:
-    pass
-    if(first_name == "Jim" or first_name == "jim"):
+    if(first_name == "John" or first_name == "john"):
         return [Contact(
             first_name= first_name if first_name!= None else "john",
             last_name = last_name if last_name!= None else "Doe",
