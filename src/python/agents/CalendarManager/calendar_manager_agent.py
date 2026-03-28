@@ -49,13 +49,14 @@ STRICT RULES — follow these exactly, no exceptions:
         )
 
 class CalendarManagerApp(dspy.Module):
-    def __init__(self, tools=[
+    tools = [
                 get_availability,
                 book_meeting,
                 send_email,
                 get_current_date,
                 send_need_help
-            ]):
+            ]
+    def __init__(self, tools=tools):
         
         super().__init__()
         self.agent = dspy.ReAct(CalendarManagerAgent,
@@ -70,7 +71,6 @@ class CalendarManagerApp(dspy.Module):
         p_result =result.get("process_result")
         trajectory: dict[str,str]= result.get("trajectory")
         tools = [value for (key,value) in trajectory.items() if key.startswith("tool_name") ]
-        print(f"result: {result}")
         return CalendarAgentResponse(
             response=p_result,
             tools=tools
