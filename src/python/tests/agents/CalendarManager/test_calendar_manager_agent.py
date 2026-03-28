@@ -102,7 +102,6 @@ def test_has_all_correct_info_sends_email():
         # Replace this with the tools that was actually used by your LLM agent
         tools_called=[ToolCall(name= tool) for tool in r2.tools],
         expected_tools=[ToolCall(name=get_availability.__name__),ToolCall(name=send_email.__name__)],
-        
     )
     return test_case
 
