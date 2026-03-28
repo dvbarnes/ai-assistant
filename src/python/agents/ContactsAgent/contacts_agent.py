@@ -34,18 +34,17 @@ STRICT RULES — follow these exactly, no exceptions:
     user_context: UserContext = dspy.InputField()
     process_result: str = dspy.OutputField(
         desc=(
-                "Message that summarizes the process result, and the information users need, e.g., the "
-                "confirmation_number if a new flight is booked."
+                "Message that summarizes the process result, and the information users need"
             )
         )
 
 class ContactsManagerApp(dspy.Module):
-    def __init__(self):
+    def __init__(self, tools = {
+        "lookup_user": dspy.Tool(lookup_user)
+    }):
         super().__init__()
         self.agent = dspy.ReAct(ContactsManagerAgent,
-            tools = [
-                lookup_user
-            ]
+            tools = tools
         )
         
     @observe()
@@ -56,7 +55,6 @@ class ContactsManagerApp(dspy.Module):
         p_result =result.get("process_result")
         trajectory: dict[str,str]= result.get("trajectory")
         tools = [value for (key,value) in trajectory.items() if key.startswith("tool_name") ]
-        print(f"result: {result}")
         return ContactsAgentResponse(
             response=p_result,
             tools=tools

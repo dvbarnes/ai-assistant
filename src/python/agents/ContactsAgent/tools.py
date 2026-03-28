@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+import dspy
 from pydantic import BaseModel
 
 
@@ -11,7 +12,13 @@ class Contact(BaseModel):
     email: str
     company: str
 
+# class LookUpUser(dspy.Tool):
+#     def __init__(self):
+#         super.__init__(func=self.lookup_user)
+#         self._parse_function(func=self.lookup_user, arg_desc=None)
+
 def lookup_user(first_name: Optional[str], last_name: Optional[str], email: Optional[str], company: Optional[str])->list[Contact]:
+    pass
     if(first_name == "Jim" or first_name == "jim"):
         return [Contact(
             first_name= first_name if first_name!= None else "john",

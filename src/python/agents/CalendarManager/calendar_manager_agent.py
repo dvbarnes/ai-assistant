@@ -49,16 +49,17 @@ STRICT RULES — follow these exactly, no exceptions:
         )
 
 class CalendarManagerApp(dspy.Module):
-    def __init__(self):
-        super().__init__()
-        self.agent = dspy.ReAct(CalendarManagerAgent,
-            tools = [
+    def __init__(self, tools=[
                 get_availability,
                 book_meeting,
                 send_email,
                 get_current_date,
                 send_need_help
-            ]
+            ]):
+        
+        super().__init__()
+        self.agent = dspy.ReAct(CalendarManagerAgent,
+            tools = tools
         )
         
     @observe()
