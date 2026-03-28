@@ -39,9 +39,7 @@ STRICT RULES — follow these exactly, no exceptions:
         )
 
 class ContactsManagerApp(dspy.Module):
-    def __init__(self, tools = {
-        "lookup_user": dspy.Tool(lookup_user)
-    }):
+    def __init__(self, tools = [lookup_user]):
         super().__init__()
         self.agent = dspy.ReAct(ContactsManagerAgent,
             tools = tools

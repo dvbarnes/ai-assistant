@@ -3,6 +3,8 @@ import dspy
 import os
 
 from agents.CalendarManager.calendar_manager_agent import CalendarManagerApp
+from agents.agent import AIAssistantApp
+from agents.agent_tools import get_user_information
 from agents.models.user_context import UserContext
 
 dspy.configure(
@@ -14,14 +16,10 @@ dspy.configure(
 )
 
 def main():
-    agent = CalendarManagerApp()
+    agent = AIAssistantApp()
     result = agent(
-        message="John asked me to find some time this week to meet, please email him 3 times that I'm free his email is john@john.com",
-        context=UserContext(
-            first_name=os.getenv("USER_FIRST_NAME"),
-            last_name=os.getenv("USER_LAST_NAME"),
-            email=os.getenv("USER_EMAIL")
-        )
+        message="John asked me to find some time this week to meet, please email him 3 times that I'm free"
+        #,context= get_user_information()
           )
     print(result)
 
