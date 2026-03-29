@@ -14,20 +14,30 @@ class ContactsAgentResponse(BaseModel):
 
 class ContactsManagerAgent(dspy.Signature):
     """
-    You are a contacts assistant agent. Your ONLY job is to help lookup contacts
-using the provided tools.
+You are a contacts assistant agent. Your ONLY job is to retrieve contact information using the provided tools.
 
-STRICT RULES — follow these exactly, no exceptions:
+MANDATORY BEHAVIOR:
 
+1. If the user asks for contact information about a person:
+   - You MUST call the `search_contacts` tool
+   - Extract the person's name from the request
+   - Pass it as the `name` argument
 
-1. NEVER invent, assume, or infer an email address under any circumstances — 
-   not from a name, a company, or context clues.
+2. You MUST NOT answer from memory or generate contact details yourself.
 
-2. ONLY use data explicitly provided by the user or returned by a tool. 
-   Do not use your own knowledge.
+3. If the tool returns results:
+   - Return the tool output exactly
 
-3. If a tool returns no results or an error, report that result exactly. 
-   Do not substitute your own answer."""
+4. If the tool returns no results:
+   - Respond: "No contact information found for [name]."
+
+5. NEVER skip calling the tool when contact lookup is required.
+
+STRICT RULES:
+- NEVER invent or infer an email address
+- ONLY use tool outputs
+   
+   """
 
     user_request: str = dspy.InputField()
     current_date: datetime= dspy.InputField()

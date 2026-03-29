@@ -15,59 +15,23 @@ class AgentResponse(BaseModel):
     response: str
     tools: list[str]
 
-class Router(dspy.Signature):
-    """
-You are a helpful assistant. You are responsile for categorizing user questions.
-If the user's question is about a product, please return *CALENDAR.
-For example, if the user asks a question about Booking meetings, please
-return
-*CALENDAR
-
-If the user's question is about a Contact, please return *CONTACT.
-For example, if the user asks a question about john at microsoft,
-please return
-*CONTACT
-
-If you are not sure which category a user's question belongs to, return
-*CLARIFY followed by a request for clarification in square
-brackets. Your request should try to gain enough information
-from the user to decide which of the above 2 categories you should
-choose for their question.
-
-For example,
-
-if the user enters:
-12345689
-
-Please return:
-
-*CLARIFY [I'm sorry but I don't understand what you are asking. Are 
-you looking for a product or an order?]
-
-Remember that you ONLY have access to information in our Calendars and
-Contacts databases. If the user asks for information which would
-not be in either of those databases, please let them know that you do
-not have access to that information.
-For example, if the user enters:
-
-What is the address of our headquarters? Please return:
-
-*CLARIFY [I'm sorry but I don't have access to that information. I
-only have access to information in our Calendars and Contacts databases.
-If the information you are looking for is not in one of those two
-databases, then I don’t have access to it.]
-
-If you cannot answer the user's question, please try to guide the user
-to a question that you can answer using the sources you have access to.
-    """
-
-    user_request: str = dspy.InputField()
-    needs: list[Literal["CONTACT_READER", "CALENDAR_READER", "CLARIFY", "EMAIL_MANAGER"]] = dspy.OutputField()
-    
 class AIAssistantAgent(dspy.Signature):
     """
     You are a personal assisant helping to fullifll users requests.
-    
+    STRICT RULES — follow these exactly, no exceptions:
+    1. NEVER invent, assume, or infer an email address under any circumstances — 
+   not from a name, a company, or context clues.
+
+    2. ONLY use data explicitly provided by the user or returned by a tool. 
+   Do not use your own knowledge.
+
+    3. If a tool returns no results or an error, report that result exactly. 
+   Do not substitute your own answer.
+
+   4. If the capability is missing:
+   - You MUST stop
+   - You MUST explain that you lack the capability
+   - You MUST NOT attempt to simulate or complete the task
     """
 
     user_request: str = dspy.InputField()
@@ -78,25 +42,28 @@ class AIAssistantAgent(dspy.Signature):
             )
         )
 
+def ask_calendar_agent(message: str, user_context: UserContext):
+    agent = CalendarManagerApp()
+    result =agent(message = message, context=user_context)
+    return result.response
+
+
+def ask_contacts_agent(message: str, user_context: UserContext):
+    agent = ContactsManagerApp()
+    result =agent(message = message, context=user_context)
+    return result.response
+
 class AIAssistantApp(dspy.Module):
-    def __init__(self):
+    tools = [
+        ask_calendar_agent,
+        ask_contacts_agent
+    ]
+    def __init__(self, tools = tools):
         super().__init__()
-        self.router = dspy.ChainOfThought(Router)
-        self.calendar = CalendarManagerApp()
-        self.contacts = ContactsManagerApp()
+        self.lead_agent = dspy.ReAct(AIAssistantAgent, tools=tools)
 
-        
-    @observe()
     def forward(self, message: str):
-        router_result = self.router(user_request = message)
-        result = ""
-        for r in router_result.get("needs"):
-            if(r == "CONTACT_READER"):
-                result += self.contacts(message=message + result, context = get_user_information()).response
-            if(r == "CALENDAR_READER"):
-                result += self.calendar(message= message + result,  context = get_user_information()).response
+        result = self.lead_agent(user_request=message, user_context= get_user_information())
         print(result)
-
-
-        return router_result
+        return result.get('process_result')
 

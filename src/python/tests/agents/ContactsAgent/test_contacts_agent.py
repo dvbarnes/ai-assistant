@@ -56,7 +56,7 @@ def test_happy_path_returns_correct_user():
         )])
     app = ContactsManagerApp(tools=[lookup_tool])
     r1:ContactsAgentResponse = app(
-        message="book a meeting with jim",
+        message="Retrieve John's contact information so I can email him.",
         context=user_context
     )
 
@@ -87,7 +87,7 @@ def test_user_not_found_returns_correct_message():
         expected_tools=[ToolCall(name="finish")],
         
     )
-    
+
     # ASSERT
     assert_test(test_case=test_case, metrics=[metric, answer_relevancy])
 

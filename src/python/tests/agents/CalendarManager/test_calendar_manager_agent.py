@@ -74,18 +74,18 @@ def test_has_all_correct_info_sends_email():
     
     availability_tool_mock = MockTool(func=get_availability, ret_value=[
     Date(
-        start_time=datetime.strptime("2026-03-25 09:30:00", date_format_string),
-        end_time=datetime.strptime("2026-03-25 11:30:00", date_format_string),
+        start_time=datetime.strptime("2026-03-28 09:30:00", date_format_string),
+        end_time=datetime.strptime("2026-03-28 11:30:00", date_format_string),
         free = True
     ),
     Date(
-        start_time=datetime.strptime("2026-03-26 09:30:00", date_format_string),
-        end_time=datetime.strptime("2026-03-26 11:30:00", date_format_string),
+        start_time=datetime.strptime("2026-03-29 09:30:00", date_format_string),
+        end_time=datetime.strptime("2026-03-29 11:30:00", date_format_string),
         free = True
         ),
     Date(
-        start_time=datetime.strptime("2026-03-27 09:30:00", date_format_string),
-        end_time=datetime.strptime("2026-03-27 11:30:00", date_format_string),
+        start_time=datetime.strptime("2026-03-30 09:30:00", date_format_string),
+        end_time=datetime.strptime("2026-03-30 11:30:00", date_format_string),
         free = True
         )
 ])
