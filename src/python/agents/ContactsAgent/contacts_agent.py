@@ -55,7 +55,6 @@ class ContactsManagerApp(dspy.Module):
             tools = tools
         )
         
-    @observe()
     def forward(self, message: str, context: UserContext):
         result = self.agent(user_request= message, 
                    current_date=datetime.now(), 

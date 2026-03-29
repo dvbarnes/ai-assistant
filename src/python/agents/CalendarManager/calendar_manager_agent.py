@@ -4,7 +4,7 @@ from deepeval.tracing import observe
 import dspy
 from pydantic import BaseModel
 
-from agents.CalendarManager.tools.tools import book_meeting, get_availability, get_current_date, send_email, send_need_help
+from agents.CalendarManager.tools.tools import get_availability, get_current_date, send_need_help
 from agents.models.user_context import UserContext
 
 

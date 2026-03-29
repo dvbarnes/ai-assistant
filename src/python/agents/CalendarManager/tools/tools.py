@@ -48,12 +48,5 @@ def book_meeting(start_date: datetime, end_date: datetime, recipients: list[str]
     print(f"booking meeting for {start_date} {end_date} to: {'; '.join(recipients)} {meeting_title} {agenda}")
 
 @observe()
-def send_email(recipients: list[str], email_title: str, email_body: str):
-    print(f"to: {'; '.join(recipients)}")
-    print(f"{email_title}")
-    print("--------------")
-    print(f"{email_body}")
-
-@observe()
 def send_need_help():
     print("Help!!")
