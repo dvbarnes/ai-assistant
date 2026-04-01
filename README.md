@@ -4,8 +4,7 @@ Playground for ai-assistant
 
 # Overview
 
-Exploration on creating random AI agents that I can think of with the goal to have a fully functional agent that can coordinate.
-
+Exploration on creating AI agents and ensuring automation testing can be setup to ensure safe and reliable deployments.
 # Goals
 
 - All agents have tests wrapped around them to signify correctness
@@ -20,5 +19,5 @@ python main.py
 
 # Testing
 ```
-deepeval test run <optional_file_path>
+pytest
 ```
